@@ -29,3 +29,21 @@ describe 'box' do
     expect(user 'vagrant').to belong_to_group 'docker'
   end
 end
+
+describe 'development tools' do
+  it 'should have rbenv installed' do
+    expect(command('rbenv -v').exit_status == 0)
+  end
+
+  it 'should have nvm installed' do
+    expect(command('nvm -v').exit_status == 0)
+  end
+
+  it 'should have docker installed' do
+    expect(command('docker -v').exit_status == 0)
+  end
+
+  it 'should have puppet installed' do
+    expect(command('puppet -v').exit_status == 0)
+  end
+end

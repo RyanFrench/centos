@@ -1,20 +1,7 @@
-# Possible values for CM: (nocm | chef | chefdk | salt | puppet)
-CM ?= nocm
-# Possible values for CM_VERSION: (latest | x.y.z | x.y)
-CM_VERSION ?=
-ifndef CM_VERSION
-	ifneq ($(CM),nocm)
-		CM_VERSION = latest
-	endif
-endif
 BOX_VERSION ?= $(shell cat VERSION)
-ifeq ($(CM),nocm)
-	BOX_SUFFIX := -$(CM)-$(BOX_VERSION).box
-else
-	BOX_SUFFIX := -$(CM)$(CM_VERSION)-$(BOX_VERSION).box
-endif
+BOX_SUFFIX := -$(BOX_VERSION).box
 
-BUILDER_TYPES ?= vmware virtualbox parallels
+BUILDER_TYPES ?= vmware virtualbox
 TEMPLATE_FILENAMES := $(filter-out centos.json,$(wildcard *.json))
 BOX_NAMES := $(basename $(TEMPLATE_FILENAMES))
 BOX_FILENAMES := $(TEMPLATE_FILENAMES:.json=$(BOX_SUFFIX))
@@ -26,22 +13,18 @@ VIRTUALBOX_BOX_DIR ?= box/virtualbox
 VIRTUALBOX_TEMPLATE_FILENAMES = $(TEMPLATE_FILENAMES)
 VIRTUALBOX_BOX_FILENAMES := $(VIRTUALBOX_TEMPLATE_FILENAMES:.json=$(BOX_SUFFIX))
 VIRTUALBOX_BOX_FILES := $(foreach box_filename, $(VIRTUALBOX_BOX_FILENAMES), $(VIRTUALBOX_BOX_DIR)/$(box_filename))
-PARALLELS_BOX_DIR ?= box/parallels
-PARALLELS_TEMPLATE_FILENAMES = $(TEMPLATE_FILENAMES)
-PARALLELS_BOX_FILENAMES := $(PARALLELS_TEMPLATE_FILENAMES:.json=$(BOX_SUFFIX))
-PARALLELS_BOX_FILES := $(foreach box_filename, $(PARALLELS_BOX_FILENAMES), $(PARALLELS_BOX_DIR)/$(box_filename))
-BOX_FILES := $(VMWARE_BOX_FILES) $(VIRTUALBOX_BOX_FILES) $(PARALLELS_BOX_FILES)
+BOX_FILES := $(VMWARE_BOX_FILES) $(VIRTUALBOX_BOX_FILES)
 
-box/vmware/%$(BOX_SUFFIX) box/virtualbox/%$(BOX_SUFFIX) box/parallels/%$(BOX_SUFFIX): %.json
+box/vmware/%$(BOX_SUFFIX) box/virtualbox/%$(BOX_SUFFIX): %.json
 	bin/box build $<
 
 .PHONY: all clean assure deliver
 
-all: build assure deliver assure_atlas assure_atlas_vmware assure_atlas_virtualbox assure_atlas_parallels
+all: build assure deliver assure_atlas assure_atlas_vmware assure_atlas_virtualbox
 
 build: $(BOX_FILES)
 
-assure: assure_vmware assure_virtualbox assure_parallels
+assure: assure_vmware assure_virtualbox
 
 assure_vmware: $(VMWARE_BOX_FILES)
 	@for vmware_box_file in $(VMWARE_BOX_FILES) ; do \
@@ -55,13 +38,7 @@ assure_virtualbox: $(VIRTUALBOX_BOX_FILES)
 		bin/box test $$virtualbox_box_file virtualbox ; \
 	done
 
-assure_parallels: $(PARALLELS_BOX_FILES)
-	@for parallels_box_file in $(PARALLELS_BOX_FILES) ; do \
-		echo Checking $$parallels_box_file ; \
-		bin/box test $$parallels_box_file parallels ; \
-	done
-
-assure_atlas: assure_atlas_vmware assure_atlas_virtualbox assure_atlas_parallels
+assure_atlas: assure_atlas_vmware assure_atlas_virtualbox
 
 assure_atlas_vmware:
 	@for box_name in $(BOX_NAMES) ; do \
@@ -75,13 +52,6 @@ assure_atlas_virtualbox:
 		echo Checking $$box_name ; \
 		bin/test-vagrantcloud-box box-cutter/$$box_name virtualbox ; \
 		bin/test-vagrantcloud-box boxcutter/$$box_name virtualbox ; \
-	done
-
-assure_atlas_parallels:
-	@for box_name in $(BOX_NAME) ; do \
-		echo Checking $$box_name ; \
-		bin/test-vagrantcloud-box box-cutter/$$box_name parallels ; \
-		bin/test-vagrantcloud-box boxcutter/$$box_name parallels ; \
 	done
 
 deliver:

@@ -1,0 +1,16 @@
+{
+  "_comment": "Build with `packer build -var-file=centos6.json centos.json`",
+  "vm_name": "centos6",
+  "cpus": "1",
+  "disk_size": "65536",
+  "iso_checksum": "f73c2c4dd333c202ca85ea66120cacdf",
+  "iso_checksum_type": "md5",
+  "iso_name": "CentOS-6.8-x86_64-bin-DVD1.iso",
+  "iso_url": "http://mirrors.kernel.org/centos/6.8/isos/x86_64/CentOS-6.8-x86_64-bin-DVD1.iso",
+  "kickstart": "ks6.cfg",
+  "memory": "512",
+  "docker": "true",
+  "cm": "puppet",
+  "ruby": "true",
+  "nodejs": "true"
+}

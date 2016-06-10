@@ -6,11 +6,7 @@ SSH_USER_HOME=${SSH_USER_HOME:-/home/${SSH_USER}}
 if [[ $PACKER_BUILDER_TYPE =~ vmware ]]; then
     echo "==> Installing VMware Tools"
     cat /etc/redhat-release
-    if grep -q -i "release 6" /etc/redhat-release ; then
-        # Uninstall fuse to fake out the vmware install so it won't try to
-        # enable the VMware blocking filesystem
-        yum erase -y fuse
-    fi
+
     # Assume that we've installed all the prerequisites:
     # kernel-headers-$(uname -r) kernel-devel-$(uname -r) gcc make perl
     # from the install media via ks.cfg
